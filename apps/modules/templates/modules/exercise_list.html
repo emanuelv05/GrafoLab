@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Ejercicios · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Ejercicios</h1>
+    <p class="page-subtitle">{{ page_obj.paginator.count }} disponible(s)</p>
+  </div>
+</div>
+
+{# ---------- Pestañas por categoría ---------- #}
+<nav class="tabs" aria-label="Categorías">
+  <a href="{% url 'modules:exercise_list' %}"
+     class="tab{% if not request.GET.category %} active{% endif %}">Todos</a>
+  {% for value, label in categories %}
+    <a href="?category={{ value }}"
+       class="tab{% if request.GET.category == value %} active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{# ---------- Tarjetas de ejercicios ---------- #}
+{% if exercises %}
+  <div class="exercise-grid">
+    {% for exercise in exercises %}
+      <article class="exercise-card">
+        <div class="exercise-card-top">
+          <span class="badge badge-info">{{ exercise.get_category_display }}</span>
+          <span class="text-muted">{{ exercise.semester.name }}</span>
+        </div>
+
+        <h3>{{ exercise.title }}</h3>
+        <p class="exercise-kind">{{ exercise.get_kind_display }}</p>
+        <p class="text-muted">{{ exercise.statement|truncatewords:22 }}</p>
+
+        <div class="exercise-card-footer">
+          {# Estado del estudiante en este ejercicio #}
+          {% if exercise.my_correct %}
+            <span class="badge badge-success">Resuelto</span>
+          {% elif exercise.my_attempts %}
+            <span class="badge badge-warning">{{ exercise.my_attempts }} intento(s)</span>
+          {% else %}
+            <span class="badge badge-neutral">Sin intentar</span>
+          {% endif %}
+
+          <a href="{% url 'modules:exercise_solve' exercise.pk %}" class="btn btn-primary btn-sm">
+            {% if exercise.my_correct %}Repasar{% elif exercise.my_attempts %}Continuar{% else %}Resolver{% endif %}
+          </a>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card empty-state">
+    No tienes ejercicios disponibles en esta categoría. Aparecerán cuando el docente
+    publique ejercicios en un semestre donde estés inscrito.
+  </div>
+{% endif %}
+
+{% include 'partials/pagination.html' %}
+
+{% endblock %}

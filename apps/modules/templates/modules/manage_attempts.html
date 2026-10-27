@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Intentos · {{ exercise.title }} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'modules:manage_detail' exercise.pk %}" class="text-muted">&larr; Volver al ejercicio</a>
+    <h1 class="page-title">Intentos: {{ exercise.title }}</h1>
+    <p class="page-subtitle">
+      Semestre {{ exercise.semester.name }} · {{ page_obj.paginator.count }} intento(s)
+    </p>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Estudiante</th>
+        <th>Resultado</th>
+        <th>Fecha</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in attempts %}
+        <tr>
+          <td>
+            <a href="{% url 'users:student_detail' attempt.student.pk %}">
+              {{ attempt.student.get_full_name|default:attempt.student.username }}
+            </a>
+          </td>
+          <td>
+            {% if attempt.is_correct %}
+              <span class="badge badge-success">Correcto</span>
+            {% else %}
+              <span class="badge badge-danger">Incorrecto</span>
+            {% endif %}
+          </td>
+          <td>{{ attempt.created_at|date:"d/m/Y H:i" }}</td>
+          <td class="wrap">
+            <details>
+              <summary>Ver respuesta</summary>
+
+              {# Observaciones que recibió el estudiante al validar #}
+              {% if attempt.feedback.errors %}
+                <ul class="feedback-list">
+                  {% for error in attempt.feedback.errors %}
+                    <li>{{ error.message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+              <pre class="code-block">{{ attempt.answer_pretty }}</pre>
+            </details>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="empty-state">Ningún estudiante ha intentado este ejercicio todavía.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% include 'partials/pagination.html' %}
+
+{% endblock %}

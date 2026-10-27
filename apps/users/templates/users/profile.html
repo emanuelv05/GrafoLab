@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi perfil · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Mi perfil</h1>
+  <a href="{% url 'users:update_profile' %}" class="btn btn-primary">Editar perfil</a>
+</div>
+
+<div class="card card-narrow">
+
+  {# Encabezado de la tarjeta: avatar, nombre y rol #}
+  <div class="profile-header">
+    <span class="avatar-lg">{{ user.username|first|upper }}</span>
+    <div>
+      <h2 class="mb-0">{{ user.get_full_name|default:user.username }}</h2>
+      <span class="badge {% if user.is_teacher %}badge-info{% else %}badge-neutral{% endif %}">
+        {% if user.is_teacher %}Docente{% else %}Estudiante{% endif %}
+      </span>
+    </div>
+  </div>
+
+  {# Datos de la cuenta #}
+  <dl class="detail-list">
+    <div>
+      <dt>Usuario</dt>
+      <dd>{{ user.username }}</dd>
+    </div>
+    <div>
+      <dt>Correo institucional</dt>
+      <dd>{{ user.email|default:"—" }}</dd>
+    </div>
+    <div>
+      <dt>Miembro desde</dt>
+      <dd>{{ user.date_joined|date:"d/m/Y" }}</dd>
+    </div>
+    <div>
+      <dt>Último acceso</dt>
+      <dd>{{ user.last_login|date:"d/m/Y H:i"|default:"—" }}</dd>
+    </div>
+
+    {# Los semestres solo aplican a estudiantes #}
+    {% if user.is_student %}
+      <div class="detail-full">
+        <dt>Semestres</dt>
+        <dd>
+          {% for semester in user.semesters.all %}
+            <span class="badge {% if semester.is_active %}badge-success{% else %}badge-neutral{% endif %}">
+              {{ semester.name }}
+            </span>
+          {% empty %}
+            <span class="text-muted">Aún no estás inscrito en ningún semestre.</span>
+          {% endfor %}
+        </dd>
+      </div>
+    {% endif %}
+  </dl>
+
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro · GrafoLab{% endblock %}
+
+{% block content %}
+<div class="auth-card auth-card-wide">
+  <h1>Crear cuenta</h1>
+
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+
+    {# Errores generales del formulario (no asociados a un campo) #}
+    {{ form.non_field_errors }}
+
+    <div class="form-grid">
+      {% include 'partials/form_field.html' with field=form.username full=True %}
+
+      {# Nombre y apellidos, uno al lado del otro #}
+      {% include 'partials/form_field.html' with field=form.first_name %}
+      {% include 'partials/form_field.html' with field=form.last_name %}
+
+      {% include 'partials/form_field.html' with field=form.email full=True %}
+
+      {# Contraseñas, una al lado de la otra #}
+      {% include 'partials/form_field.html' with field=form.password1 hide_help=True %}
+      {% include 'partials/form_field.html' with field=form.password2 hide_help=True %}
+    </div>
+
+    {# La lista larga de requisitos se reemplaza por una línea; los errores reales siguen apareciendo #}
+
+    <button type="submit" class="btn btn-primary btn-block">Registrarme</button>
+  </form>
+
+  <p class="auth-footer">
+    ¿Ya tienes cuenta?
+    <a href="{% url 'users:signin' %}">Inicia sesión</a>
+  </p>
+</div>
+{% endblock %}

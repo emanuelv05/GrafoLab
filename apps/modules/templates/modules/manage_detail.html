@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load l10n %}{% load static %}
+
+{% block title %}{{ exercise.title }} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'modules:manage_list' %}" class="text-muted">&larr; Volver a ejercicios</a>
+    <h1 class="page-title">{{ exercise.title }}</h1>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'modules:manage_update' exercise.pk %}" class="btn btn-secondary">Editar</a>
+    <a href="{% url 'modules:manage_attempts' exercise.pk %}" class="btn btn-secondary">Ver intentos</a>
+    <a href="{% url 'modules:manage_delete' exercise.pk %}" class="btn btn-danger">Eliminar</a>
+  </div>
+</div>
+
+{# ---------- Métricas del ejercicio ---------- #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Estudiantes que lo intentaron</span>
+    <span class="stat-value">{{ stats.students }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Intentos</span>
+    <span class="stat-value">{{ stats.attempts }}</span>
+    <span class="stat-hint">{{ stats.correct }} correctos</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Porcentaje de aciertos</span>
+    <span class="stat-value">{{ stats.accuracy }}%</span>
+    <div class="progress" style="margin-top: 0.5rem;">
+      <div class="progress-bar" data-width="{{ stats.accuracy|unlocalize }}"></div>
+    </div>
+  </div>
+</div>
+
+<div class="two-columns">
+
+  {# ---------- Enunciado y datos ---------- #}
+  <div>
+    <div class="card">
+      <h2 class="card-title">Enunciado</h2>
+      {{ exercise.statement|linebreaks }}
+    </div>
+
+    {% if exercise.category == 'graph' %}
+      <div class="card">
+        <h2 class="card-title">Vista del grafo</h2>
+        <div id="exercise-figure" class="graph-box"></div>
+      </div>
+    {% elif exercise.category == 'tree' %}
+      <div class="card">
+        <h2 class="card-title">Vista del arbol</h2>
+        <div id="exercise-figure" class="graph-box"></div>
+      </div>
+    {% endif %}
+  </div>
+
+  {# ---------- Ficha ---------- #}
+  <aside>
+    <div class="card">
+      <h2 class="card-title">Ficha</h2>
+      <dl class="detail-list detail-list-single">
+        <div>
+          <dt>Estado</dt>
+          <dd>
+            {% if exercise.is_published %}
+              <span class="badge badge-success">Publicado</span>
+            {% else %}
+              <span class="badge badge-neutral">Borrador</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Semestre</dt>
+          <dd><a href="{% url 'core:semester_detail' exercise.semester.pk %}">{{ exercise.semester.name }}</a></dd>
+        </div>
+        <div>
+          <dt>Categoría</dt>
+          <dd>{{ exercise.get_category_display }}</dd>
+        </div>
+        <div>
+          <dt>Tipo</dt>
+          <dd>{{ exercise.get_kind_display }}</dd>
+        </div>
+        <div>
+          <dt>Creado por</dt>
+          <dd>{{ exercise.created_by.get_full_name|default:exercise.created_by.username }}</dd>
+        </div>
+        <div>
+          <dt>Fecha de creación</dt>
+          <dd>{{ exercise.created_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+      </dl>
+    </div>
+  </aside>
+</div>
+
+{# Datos para el JavaScript de la vista previa #}
+{{ exercise.data|json_script:"exercise-data" }}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/graph-view.js' %}"></script>
+  <script src="{% static 'js/tree-view.js' %}"></script>
+  <script src="{% static 'js/exercise_preview.js' %}"></script>
+{% endblock %}

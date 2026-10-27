@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar estudiante · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Eliminar estudiante</h1>
+</div>
+
+<div class="card card-narrow">
+  <p>
+    ¿Seguro que quieres eliminar a
+    <strong>{{ student.get_full_name|default:student.username }}</strong>
+    ({{ student.username }})?
+  </p>
+
+  {# Aviso de lo que se pierde: los intentos se borran en cascada #}
+  <div class="message message-warning">
+    <span class="message-text">
+      Se borrarán también sus {{ student.attempts.count }} intento(s) y no se puede deshacer.
+      Si solo quieres que deje de entrar, es mejor <strong>desactivar</strong> la cuenta:
+      así se conserva su historial.
+    </span>
+  </div>
+
+  <form method="post" class="form-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a href="{% url 'users:student_detail' student.pk %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{# Paginación para ListView. Si la vista usa QueryStringMixin, conserva los filtros. #}
+{% if is_paginated %}
+  <nav class="pagination" aria-label="Paginación">
+    {% if page_obj.has_previous %}
+      <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">&laquo; Anterior</a>
+    {% else %}
+      <span class="disabled">&laquo; Anterior</span>
+    {% endif %}
+
+    <span class="current">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Siguiente &raquo;</a>
+    {% else %}
+      <span class="disabled">Siguiente &raquo;</span>
+    {% endif %}
+  </nav>
+{% endif %}

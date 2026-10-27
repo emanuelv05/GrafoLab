@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar semestre · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Eliminar semestre</h1>
+</div>
+
+<div class="card card-narrow">
+
+  {% if semester.exercises.exists %}
+    {# Con ejercicios no se puede eliminar: se perderían ejercicios e intentos #}
+    <div class="message message-warning">
+      <span class="message-text">
+        El semestre <strong>{{ semester.name }}</strong> tiene ejercicios y no se puede eliminar,
+        porque se perderían también los intentos de los estudiantes.
+        Puedes <strong>cerrarlo</strong> desactivándolo: así conserva todo su historial.
+      </span>
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'core:semester_update' semester.pk %}" class="btn btn-primary">Editar y desactivar</a>
+      <a href="{% url 'core:semester_detail' semester.pk %}" class="btn btn-secondary">Volver</a>
+    </div>
+
+  {% else %}
+    <p>
+      ¿Seguro que quieres eliminar el semestre <strong>{{ semester.name }}</strong>?
+      Se quitará la inscripción de sus {{ semester.students.count }} estudiante(s), pero sus cuentas no se borran.
+    </p>
+    <form method="post" class="form-actions">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+      <a href="{% url 'core:semester_detail' semester.pk %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load l10n %}
+
+{% block title %}Inicio · GrafoLab{% endblock %}
+
+{% block content %}
+
+{# ---------- Cabecera ---------- #}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Hola, {{ user.first_name|default:user.username }}</h1>
+    <p class="page-subtitle">Este es tu avance en los ejercicios del curso.</p>
+  </div>
+  <a href="{% url 'modules:exercise_list' %}" class="btn btn-primary">Ir a los ejercicios</a>
+</div>
+
+{# ---------- Métricas personales ---------- #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Ejercicios disponibles</span>
+    <span class="stat-value">{{ summary.available }}</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Resueltos</span>
+    <span class="stat-value">{{ summary.solved }}</span>
+    <span class="stat-hint">{{ summary.pending }} pendientes</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Intentos</span>
+    <span class="stat-value">{{ summary.attempts }}</span>
+    <span class="stat-hint">{{ summary.correct }} correctos</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Porcentaje de aciertos</span>
+    <span class="stat-value">{{ summary.accuracy }}%</span>
+  </div>
+</div>
+
+{# ---------- Progreso general ---------- #}
+<div class="card">
+  <h2 class="card-title">Tu progreso</h2>
+
+  {% if summary.available %}
+    <div class="progress">
+      <div class="progress-bar" data-width="{{ summary.progress|unlocalize }}"></div>
+    </div>
+    <p class="stat-hint">
+      {{ summary.solved }} de {{ summary.available }} ejercicios resueltos ({{ summary.progress }}%)
+    </p>
+  {% else %}
+    <p class="empty-state mb-0">
+      Todavía no tienes ejercicios disponibles. Aparecerán cuando el docente te inscriba
+      en un semestre y publique ejercicios.
+    </p>
+  {% endif %}
+</div>
+
+{# ---------- Últimos intentos ---------- #}
+<h2>Últimos intentos</h2>
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Ejercicio</th>
+        <th>Resultado</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in summary.recent %}
+        <tr>
+          <td>
+            <a href="{% url 'modules:exercise_solve' attempt.exercise.pk %}">{{ attempt.exercise.title }}</a>
+          </td>
+          <td>
+            {% if attempt.is_correct %}
+              <span class="badge badge-success">Correcto</span>
+            {% else %}
+              <span class="badge badge-danger">Incorrecto</span>
+            {% endif %}
+          </td>
+          <td>{{ attempt.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="empty-state">Aún no has resuelto ningún ejercicio.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if summary.attempts > 5 %}
+  <p class="text-center" style="margin-top: 1rem;">
+    <a href="{% url 'modules:attempt_list' %}">Ver todo mi historial</a>
+  </p>
+{% endif %}
+
+{% endblock %}

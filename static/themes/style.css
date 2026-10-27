@@ -1,0 +1,1554 @@
+/* ==========================================================================
+   GrafoLab — hoja de estilos global
+   --------------------------------------------------------------------------
+   Índice
+     1. Variables (colores, medidas)
+     2. Base y tipografía
+     3. Layout general
+     4. Sidebar y barra superior
+     5. Cabecera de página
+     6. Botones
+     7. Tarjetas, estadísticas y barra de progreso
+     8. Formularios
+     9. Tablas
+    10. Badges
+    11. Mensajes
+    12. Paginación
+    13. Pantallas de autenticación
+    14. Utilidades
+    15. Responsive (escritorio)
+   Enfoque "mobile first": los estilos base son para móvil y la sección 15
+   los amplía para pantallas grandes.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. VARIABLES
+   Cambiar un color aquí lo cambia en todo el sistema.
+   ========================================================================== */
+:root {
+  /* Marca */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: #eef2ff;
+
+  /* Superficies y texto */
+  --color-bg: #f4f6fb;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+
+  /* Estados */
+  --color-success: #15803d;
+  --color-success-soft: #ecfdf5;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-info: #0369a1;
+  --color-info-soft: #f0f9ff;
+
+  /* Sidebar */
+  --sidebar-bg: #0f172a;
+  --sidebar-text: #cbd5e1;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: rgba(99, 102, 241, 0.2);
+  --sidebar-width: 260px;
+
+  /* Medidas y efectos */
+  --topbar-height: 56px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --transition: 0.18s ease;
+}
+
+
+/* ==========================================================================
+   2. BASE Y TIPOGRAFÍA
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+  font-weight: 650;
+}
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+
+p { margin: 0 0 1rem; }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* Anillo de foco visible al navegar con teclado (accesibilidad) */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+[hidden] { display: none !important; }
+
+/* Icono SVG de línea; hereda el color del texto */
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* ==========================================================================
+   3. LAYOUT GENERAL
+   ========================================================================== */
+.app { min-height: 100vh; }
+
+.main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* En móvil se reserva el espacio de la barra superior fija */
+.layout-app .main { padding-top: var(--topbar-height); }
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* Dos columnas: contenido principal y panel lateral (desde escritorio) */
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+  .two-columns { grid-template-columns: 2fr 1fr; align-items: start; }
+}
+
+/* ==========================================================================
+   4. SIDEBAR Y BARRA SUPERIOR
+   ========================================================================== */
+
+/* --- Barra superior (solo móvil) --- */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-height);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.topbar-brand { font-weight: 700; }
+
+.menu-toggle {
+  display: inline-flex;
+  padding: 0.4rem;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.menu-toggle:hover { background: var(--color-bg); }
+
+/* --- Sidebar: en móvil está oculto fuera de la pantalla --- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  width: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0.875rem;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  transform: translateX(-100%);
+  transition: transform var(--transition);
+  overflow-y: auto;
+}
+.sidebar.is-open {
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+/* Capa oscura detrás del menú abierto (móvil) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: rgba(15, 23, 42, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+.sidebar-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Evita el scroll de la página mientras el menú móvil está abierto */
+body.sidebar-open { overflow: hidden; }
+
+/* --- Marca --- */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+  padding: 0 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+.sidebar-brand:hover { text-decoration: none; }
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  font-size: 1rem;
+}
+
+/* --- Navegación --- */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+  text-decoration: none;
+}
+.nav-link.active {
+  background: var(--sidebar-active);
+  color: #fff;
+}
+
+/* --- Pie: usuario y cierre de sesión --- */
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #1e293b;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.25rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--sidebar-hover);
+  color: #fff;
+  font-weight: 600;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.user-info strong {
+  color: #fff;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-info small { color: #94a3b8; }
+
+
+/* ==========================================================================
+   5. CABECERA DE PÁGINA
+   Uso: <div class="page-header"><div><h1 class="page-title">...</h1>
+        <p class="page-subtitle">...</p></div> <a class="btn btn-primary">...</a></div>
+   ========================================================================== */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.page-title { margin: 0; }
+.page-subtitle {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-muted);
+}
+
+/* Grupo de filtro y botones a la derecha de la cabecera */
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.header-actions .filters { margin-bottom: 0; }
+
+/* ==========================================================================
+   6. BOTONES
+   Uso: <button class="btn btn-primary">, también sobre <a>.
+   Variantes: btn-primary · btn-secondary · btn-danger · btn-ghost
+   Tamaños:   btn-sm · btn-block
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.btn:hover { text-decoration: none; }
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+
+.btn-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.btn-secondary:hover { background: var(--color-bg); }
+
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+.btn-danger:hover { background: #991b1b; }
+
+/* Botón discreto, pensado para fondos oscuros (cerrar sesión en el sidebar) */
+.btn-ghost {
+  background: transparent;
+  border-color: #334155;
+  color: var(--sidebar-text);
+}
+.btn-ghost:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.875rem;
+}
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+
+/* ==========================================================================
+   7. TARJETAS, ESTADÍSTICAS Y BARRA DE PROGRESO
+   ========================================================================== */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.card-title {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+/* Cuadrícula de métricas del dashboard */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  padding: 1.1rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.stat-value {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Barra de progreso. Uso: <div class="progress"><div class="progress-bar" style="width: 40%"></div></div> */
+.progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+.progress-bar {
+  width: 0;                               /* main.js asigna el valor real */
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+  transition: width 0.6s ease;
+}
+
+/* Texto auxiliar bajo el valor de una métrica */
+.stat-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Barra de progreso con su porcentaje, dentro de una celda de tabla */
+.cell-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 150px;
+}
+.cell-progress .progress { flex: 1; }
+.cell-progress span {
+  min-width: 3.2rem;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+/* Tarjeta de ancho reducido (perfil, formularios cortos) */
+.card-narrow { max-width: 680px; }
+
+/* Encabezado del perfil: avatar grande junto al nombre */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar-lg {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Lista de datos "etiqueta / valor". Uso: <dl class="detail-list"><div><dt>..</dt><dd>..</dd></div></dl> */
+.detail-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem 1.5rem;
+  margin: 0;
+}
+.detail-list dt {
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.detail-list dd {
+  margin: 0.15rem 0 0;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+@media (min-width: 600px) {
+  .detail-list { grid-template-columns: 1fr 1fr; }
+  .detail-full { grid-column: 1 / -1; }   /* un dato que ocupa todo el ancho */
+}
+
+/* Lista de casillas con scroll (inscripción de estudiantes) */
+.checklist {
+  max-height: 320px;
+  margin-bottom: 1rem;
+  padding: 0.25rem 0.5rem;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.checklist-all {
+  padding: 0 0.5rem 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* Bloque de código / JSON */
+.code-block {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Lista de datos en una sola columna (fichas laterales) */
+.detail-list-single { grid-template-columns: 1fr !important; }
+
+/* ==========================================================================
+   8. FORMULARIOS
+   Uso: <form class="form"> con {{ form.as_p }}. Django envuelve cada campo
+   en un <p>, y los errores en <ul class="errorlist">.
+   ========================================================================== */
+.form p { margin: 0 0 1.1rem; }
+
+/* Casilla con la etiqueta al lado. Uso: <label class="checkbox"> {{ campo }} Texto </label> */
+.form .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form input:not([type="checkbox"]):not([type="radio"]),
+.form select,
+.form textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form textarea { resize: vertical; }
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* Texto de ayuda de Django */
+.form .helptext,
+.form small {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Lista de ayuda de contraseña (<ul> dentro del helptext) */
+.form .helptext ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.1rem;
+}
+
+/* Errores de validación */
+.errorlist {
+  margin: 0 0 0.4rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+/* Acciones al final del formulario (botones alineados) */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Cuadrícula de campos: una columna en móvil, dos desde 600px */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 1rem;
+}
+.form-field { margin-bottom: 1.1rem; }
+
+/* Nota de ayuda breve bajo un grupo de campos */
+.form-hint {
+  margin: 0 0 1.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 600px) {
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .form-field-full { grid-column: 1 / -1; }
+}
+
+/* Campo de código (JSON) con letra monoespaciada */
+.form textarea.code-input {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+/* Panel con el formato JSON del tipo de ejercicio elegido */
+.data-help {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+.data-help[hidden] { display: none; }
+.data-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.data-help .code-block { margin-bottom: 0.4rem; }
+.data-help small { color: var(--color-text-muted); }
+
+/* ==========================================================================
+   9. TABLAS
+   Uso: <div class="table-wrap"><table class="table">...</table></div>
+   El contenedor permite scroll horizontal en pantallas pequeñas.
+   ========================================================================== */
+.table-wrap {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+.table th,
+.table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.table th {
+  background: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: #f8fafc; }
+
+/* Celda con botones de acción */
+.table .actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Celda que sí puede partir el texto en varias líneas */
+.table td.wrap {
+  min-width: 260px;
+  white-space: normal;
+}
+.table details summary {
+  color: var(--color-primary);
+  cursor: pointer;
+}
+.table details[open] summary { margin-bottom: 0.5rem; }
+
+/* Observaciones que recibió el estudiante */
+.feedback-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.1rem;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+
+/* ==========================================================================
+   10. BADGES
+   Uso: <span class="badge badge-success">Publicado</span>
+   ========================================================================== */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.badge-success { background: var(--color-success-soft); color: var(--color-success); }
+.badge-danger  { background: var(--color-danger-soft);  color: var(--color-danger); }
+.badge-warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.badge-info    { background: var(--color-info-soft);    color: var(--color-info); }
+.badge-neutral { background: var(--color-bg);           color: var(--color-text-muted); }
+
+
+/* ==========================================================================
+   11. MENSAJES
+   Las clases message-<tag> vienen de message.tags de Django.
+   La clase is-hiding la agrega main.js para animar la salida.
+   ========================================================================== */
+.messages { margin-bottom: 1.25rem; }
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid transparent;
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.message.is-hiding {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.message-success { background: var(--color-success-soft); border-color: var(--color-success); color: var(--color-success); }
+.message-error   { background: var(--color-danger-soft);  border-color: var(--color-danger);  color: var(--color-danger); }
+.message-warning { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-warning); }
+.message-info,
+.message-debug   { background: var(--color-info-soft);    border-color: var(--color-info);    color: var(--color-info); }
+
+.message-close {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  opacity: 0.6;
+  cursor: pointer;
+}
+.message-close:hover { opacity: 1; }
+
+
+/* ==========================================================================
+   12. PAGINACIÓN
+   Uso: <nav class="pagination"> con <a> para páginas y <span class="current">
+   ========================================================================== */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+}
+.pagination a,
+.pagination .current {
+  min-width: 2.25rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: center;
+}
+.pagination a:hover {
+  background: var(--color-bg);
+  text-decoration: none;
+}
+.pagination .current {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.pagination .disabled {
+  min-width: 2.25rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+
+/* ==========================================================================
+   13. PANTALLAS DE AUTENTICACIÓN (login y registro)
+   Sin sidebar: la tarjeta se centra en la pantalla.
+   ========================================================================== */
+.layout-auth .content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 680px;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;          /* ancho del login */
+  margin: 0 auto;
+  padding: 2rem 1.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+.auth-card-wide { max-width: 620px; }   /* ancho del registro */
+
+.auth-card h1 {
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+.auth-subtitle {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.auth-footer {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+
+/* ==========================================================================
+   14. UTILIDADES
+   ========================================================================== */
+/* Estado vacío: cuando una lista no tiene registros */
+.empty-state {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.text-muted  { color: var(--color-text-muted); }
+.text-center { text-align: center; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+
+/* Barra de filtros sobre una lista (selects + botón) */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Texto solo para lectores de pantalla */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.filters select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+/* ==========================================================================
+   14b. MODAL DE CONFIRMACIÓN
+   Usa el elemento <dialog>; el navegador pone el fondo oscuro (::backdrop).
+   ========================================================================== */
+.modal {
+  width: min(420px, calc(100% - 2rem));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  color: var(--color-text);
+}
+.modal[open] { animation: modal-in 0.15s ease; }
+.modal::backdrop { background: rgba(15, 23, 42, 0.55); }
+
+.modal-box { padding: 1.5rem; }
+.modal-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.15rem;
+}
+.modal-message {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-muted);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   14c. EJERCICIOS DEL ESTUDIANTE
+   Pestañas, tarjetas, resolver, matriz y retroalimentación.
+   ========================================================================== */
+
+/* --- Pestañas de categoría --- */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+.tab {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.tab:hover { background: var(--color-bg); text-decoration: none; }
+.tab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* --- Tarjetas de ejercicios --- */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.exercise-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.exercise-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+.exercise-card h3 { margin-bottom: 0.15rem; }
+.exercise-kind {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.exercise-card p.text-muted { flex: 1; font-size: 0.9rem; }   /* empuja el pie hacia abajo */
+.exercise-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* --- Pantalla de resolver --- */
+.solver-title {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1rem;
+}
+.solver-title:first-child { margin-top: 0; }
+
+.json-answer {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+
+/* Matriz de adyacencia */
+.matrix-wrap {
+  margin-bottom: 0.5rem;
+  overflow-x: auto;       /* en móvil, la matriz se desplaza sin romper la página */
+}
+.matrix-table {
+  border-collapse: separate;
+  border-spacing: 4px;
+}
+.matrix-table th {
+  min-width: 2.5rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.matrix-input {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.05rem;
+  text-align: center;
+}
+.matrix-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.matrix-input.is-wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* Grados */
+.degrees-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.degree-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Retroalimentación tras validar */
+.feedback {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-left: 4px solid;
+  border-radius: var(--radius-sm);
+}
+.feedback[hidden] { display: none; }
+.feedback-title {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+.feedback ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.feedback-success {
+  background: var(--color-success-soft);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.feedback-error {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Lista corta de intentos en la columna lateral */
+.attempt-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.attempt-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+.attempt-list li:last-child { border-bottom: 0; }
+
+/* --- Fila de respuesta: etiqueta + control(es) en una línea --- */
+.answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  margin: 0.9rem 0 0;
+  font-weight: 500;
+}
+.path-text {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Campo numérico suelto (distancia, peso total) */
+.field-input {
+  width: 7.5rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.field-input.is-wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* --- Paleta de colores (coloreo de grafos) --- */
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.swatch {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px #fff;      /* anillo blanco interior para que destaque el color */
+}
+.swatch:hover { transform: scale(1.08); }
+.swatch.is-active {
+  border-color: var(--color-text);
+  transform: scale(1.12);
+}
+
+/* --- Preguntas de Sí/No --- */
+.choice {
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+.choice legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+}
+.choice label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 1.5rem;
+  cursor: pointer;
+}
+.choice.is-wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* ==========================================================================
+   14d. GRAFOS (SVG)
+   ========================================================================== */
+.graph-box {
+  padding: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+.graph-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+}
+.graph-caption {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* --- Aristas --- */
+.graph-edge-line {
+  stroke: #94a3b8;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.graph-edge-hit {                       /* zona invisible para facilitar el clic */
+  stroke: transparent;
+  stroke-width: 16;
+}
+.graph-weight {
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-text);
+  paint-order: stroke;                  /* contorno blanco para leer sobre la línea */
+  stroke: #fff;
+  stroke-width: 5px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* --- Vértices --- */
+.graph-vertex circle {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+  transition: fill 0.15s ease;
+}
+.graph-vertex text {
+  font-size: 16px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-text);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Interacción --- */
+.graph-edge.is-clickable,
+.graph-vertex.is-clickable { cursor: pointer; }
+.graph-edge.is-clickable:hover .graph-edge-line { stroke: var(--color-primary); }
+.graph-vertex.is-clickable:hover circle { fill: #c7d2fe; }
+.graph-vertex:focus-visible,
+.graph-edge:focus-visible { outline: none; }
+.graph-vertex:focus-visible circle { stroke-width: 5; }
+.graph-edge:focus-visible .graph-edge-line { stroke: var(--color-primary); }
+
+/* --- Estados --- */
+.graph-edge.is-selected .graph-edge-line { stroke: var(--color-primary); stroke-width: 4.5; }
+.graph-edge.is-wrong .graph-edge-line    { stroke: var(--color-danger); stroke-width: 4.5; }
+.graph-edge.is-correct .graph-edge-line  { stroke: var(--color-success); stroke-width: 4.5; }
+
+.graph-vertex.is-selected circle { fill: var(--color-primary); }
+.graph-vertex.is-selected text   { fill: #fff; }
+.graph-vertex.is-start circle    { stroke: var(--color-success); stroke-width: 4.5; }
+.graph-vertex.is-end circle      { stroke: var(--color-danger); stroke-width: 4.5; }
+.graph-vertex.is-wrong circle    { stroke: var(--color-danger); fill: var(--color-danger-soft); }
+.graph-vertex.is-correct circle  { stroke: var(--color-success); fill: var(--color-success-soft); }
+
+/* --- Fondo del lienzo y cursores del editor --- */
+.graph-bg { fill: transparent; }
+.graph-svg.is-editing { touch-action: none; }          /* evita que el dedo desplace la página al arrastrar */
+.graph-svg[data-tool="move"] .graph-vertex { cursor: grab; }
+.graph-svg[data-tool="vertex"] .graph-bg { cursor: copy; }
+
+/* ==========================================================================
+   Editor de grafos (docente)
+   ========================================================================== */
+.graph-editor[hidden] { display: none; }
+
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.tool {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tool:hover { background: var(--color-bg); }
+.tool.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.tool-danger.is-active {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.editor-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.6rem;
+}
+.form .editor-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.form .editor-options input[type="number"] { width: 6rem; }
+
+.form .editor-hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.form .editor-status {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.form .editor-hint.is-warning,
+.form .editor-status.is-warning { color: var(--color-warning); }
+
+/* ==========================================================================
+   14e. ÁRBOLES (SVG)
+   ========================================================================== */
+.tree-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 460px;
+  margin: 0 auto;
+}
+.tree-empty {
+  margin: 0;
+  padding: 1.5rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* --- Aristas --- */
+.tree-edge {
+  stroke: #94a3b8;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.tree-edge.is-ghost {
+  stroke: #cbd5e1;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+/* --- Nodos --- */
+.tree-node circle {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+  transition: fill 0.15s ease;
+}
+.tree-node text {
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-text);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Ranuras (círculos punteados con +) --- */
+.tree-slot circle {
+  fill: var(--color-surface);
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+.tree-slot text {
+  font-size: 14px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-text-muted);
+  pointer-events: none;
+}
+.tree-slot.is-clickable:hover circle {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary);
+}
+
+/* --- Interacción y estados --- */
+.tree-node.is-clickable,
+.tree-slot.is-clickable { cursor: pointer; }
+.tree-node.is-clickable:hover circle { fill: #c7d2fe; }
+.tree-node:focus-visible,
+.tree-slot:focus-visible { outline: none; }
+.tree-node:focus-visible circle { stroke-width: 5; }
+
+.tree-node.is-selected circle { fill: var(--color-primary); }
+.tree-node.is-selected text   { fill: #fff; }
+.tree-node.is-wrong circle    { stroke: var(--color-danger); fill: var(--color-danger-soft); }
+.tree-node.is-correct circle  { stroke: var(--color-success); fill: var(--color-success-soft); }
+.tree-node.is-target circle   { stroke: var(--color-warning); stroke-width: 5; }
+
+/* --- Piezas de las interfaces de árboles --- */
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.chip {
+  min-width: 2.2rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  text-align: center;
+  font-weight: 600;
+}
+.chip.is-done { background: var(--color-bg); color: var(--color-text-muted); text-decoration: line-through; }
+.chip.is-next { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+
+.expression-text {
+  margin: 0.5rem 0;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+.answer-note {
+  min-height: 1.2rem;
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-warning);
+}
+
+/* --- Editor del docente: campos de texto de los árboles --- */
+.form .editor-options label.grow { flex: 1 1 280px; }
+.form .editor-options label.grow input { flex: 1; }
+.form .editor-options input.short { width: 6rem; }
+.form .editor-options select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+}
+
+/* ==========================================================================
+   15. RESPONSIVE — escritorio (≥ 992px)
+   El sidebar queda fijo y visible; se oculta la barra superior móvil.
+   ========================================================================== */
+@media (min-width: 992px) {
+  .layout-app .main {
+    margin-left: var(--sidebar-width);
+    padding-top: 0;
+  }
+
+  .sidebar {
+    transform: none;
+    transition: none;
+  }
+
+  .topbar,
+  .sidebar-overlay { display: none; }
+
+  .content { padding: 2rem 2rem 3rem; }
+}

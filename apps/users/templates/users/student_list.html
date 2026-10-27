@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Estudiantes · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Estudiantes</h1>
+    <p class="page-subtitle">{{ page_obj.paginator.count }} registrado(s)</p>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Estudiante</th>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Estado</th>
+        <th>Registro</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+        {# data-student permite que main.js actualice esta fila al activar/desactivar #}
+        <tr data-student>
+          <td>
+            <a href="{% url 'users:student_detail' student.pk %}">
+              {{ student.get_full_name|default:student.username }}
+            </a>
+          </td>
+          <td>{{ student.username }}</td>
+          <td>{{ student.email|default:"—" }}</td>
+          <td>
+            <span data-status-badge
+                  class="badge {% if student.is_active %}badge-success{% else %}badge-danger{% endif %}">
+              {% if student.is_active %}Activo{% else %}Inactivo{% endif %}
+            </span>
+          </td>
+          <td>{{ student.date_joined|date:"d/m/Y" }}</td>
+          <td class="actions">
+            <a href="{% url 'users:student_update' student.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+            <button type="button" class="btn btn-secondary btn-sm"
+                    data-toggle-active
+                    data-url="{% url 'users:student_toggle' student.pk %}"
+                    data-active="{% if student.is_active %}true{% else %}false{% endif %}"
+                    data-confirm="¿Desactivar la cuenta de {{ student.get_full_name|default:student.username }}? No podrá iniciar sesión.">
+              {% if student.is_active %}Desactivar{% else %}Activar{% endif %}
+            </button>
+            <a href="{% url 'users:student_delete' student.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="empty-state">
+            Todavía no hay estudiantes. Se registran desde la pantalla de registro.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% include 'partials/pagination.html' %}
+
+{% endblock %}

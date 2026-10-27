@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar semestre{% else %}Nuevo semestre{% endif %} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'core:semester_list' %}" class="text-muted">&larr; Volver a semestres</a>
+    <h1 class="page-title">{% if object %}Editar semestre{% else %}Nuevo semestre{% endif %}</h1>
+  </div>
+</div>
+
+<div class="card card-narrow">
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% include 'partials/form_field.html' with field=form.name %}
+
+    {# Casilla de estado: se dibuja aparte porque la etiqueta va al lado, no encima #}
+    <div class="form-field">
+      <label class="checkbox">
+        {{ form.is_active }}
+        Semestre activo
+      </label>
+      <small class="helptext">
+        Los estudiantes solo ven los ejercicios de los semestres activos.
+      </small>
+      {{ form.is_active.errors }}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {% if object %}Guardar cambios{% else %}Crear semestre{% endif %}
+      </button>
+      <a href="{% url 'core:semester_list' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

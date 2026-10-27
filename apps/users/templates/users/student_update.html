@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar estudiante · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'users:student_list' %}" class="text-muted">&larr; Volver a estudiantes</a>
+    <h1 class="page-title">Editar estudiante</h1>
+    <p class="page-subtitle">Usuario: {{ student.username }} (no se puede cambiar)</p>
+  </div>
+</div>
+
+<div class="card card-narrow">
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="form-grid">
+      {% include 'partials/form_field.html' with field=form.first_name %}
+      {% include 'partials/form_field.html' with field=form.last_name %}
+      {% include 'partials/form_field.html' with field=form.email full=True %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      <a href="{% url 'users:student_list' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{# Mensajes de Django (messages.success, messages.error...). main.js los cierra solos. #}
+{% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="message message-{{ message.tags|default:'info' }}" role="alert">
+        <span class="message-text">{{ message }}</span>
+        <button type="button" class="message-close" data-message-close aria-label="Cerrar mensaje">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

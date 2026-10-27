@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exercise.title }} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'modules:exercise_list' %}" class="text-muted">&larr; Volver a ejercicios</a>
+    <h1 class="page-title">{{ exercise.title }}</h1>
+    <p class="page-subtitle">
+      <span class="badge badge-info">{{ exercise.get_category_display }}</span>
+      {{ exercise.get_kind_display }} · Semestre {{ exercise.semester.name }}
+    </p>
+  </div>
+</div>
+
+<div class="two-columns">
+
+  {# ---------- Columna principal: enunciado y respuesta ---------- #}
+  <div>
+    <div class="card">
+      <h2 class="card-title">Enunciado</h2>
+      {{ exercise.statement|linebreaks }}
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Tu respuesta</h2>
+
+      {# main: exercise_solve.js dibuja aquí la interfaz según el tipo de ejercicio #}
+      <div id="solver"
+           data-kind="{{ exercise.kind }}"
+           data-submit-url="{% url 'modules:exercise_submit' exercise.pk %}"></div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="submit-answer">Validar respuesta</button>
+      </div>
+
+      {# Resultado de la validación; aria-live lo anuncia a lectores de pantalla #}
+      <div id="feedback" class="feedback" hidden aria-live="polite"></div>
+    </div>
+  </div>
+
+  {# ---------- Columna lateral: datos e intentos ---------- #}
+  <aside>
+    {% if exercise.category == 'graph' %}
+      <div class="card">
+        <h2 class="card-title">Figura</h2>
+        <div id="exercise-figure" class="graph-box"></div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <h2 class="card-title">Intentos recientes</h2>
+      <ul class="attempt-list" id="attempt-list">
+        {% for attempt in last_attempts %}
+          <li>
+            {% if attempt.is_correct %}
+              <span class="badge badge-success">Correcto</span>
+            {% else %}
+              <span class="badge badge-danger">Incorrecto</span>
+            {% endif %}
+            <span class="text-muted">{{ attempt.created_at|date:"d/m/Y H:i" }}</span>
+          </li>
+        {% empty %}
+          <li class="text-muted" id="attempt-empty">Aún no has intentado este ejercicio.</li>
+        {% endfor %}
+      </ul>
+      <p class="mb-0" style="margin-top: 0.75rem;">
+        <a href="{% url 'modules:attempt_list' %}">Ver todo mi historial</a>
+      </p>
+    </div>
+  </aside>
+
+</div>
+
+{# Datos del ejercicio para JavaScript: json_script los escapa de forma segura #}
+{{ exercise.data|json_script:"exercise-data" }}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/graph-view.js' %}"></script>
+  <script src="{% static 'js/tree-view.js' %}"></script>
+  <script src="{% static 'js/solve-trees.js' %}"></script>
+  <script src="{% static 'js/exercise_solve.js' %}"></script>
+{% endblock %}

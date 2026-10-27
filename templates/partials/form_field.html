@@ -1,0 +1,16 @@
+{# Dibuja un campo de formulario: etiqueta, input, errores y ayuda. #}
+{# Parámetros: field (obligatorio), hide_help (opcional), full (opcional: ocupa todo el ancho) #}
+<div class="form-field{% if full %} form-field-full{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {{ field }}
+
+  {% if field.errors %}
+    <ul class="errorlist">
+      {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if field.help_text and not hide_help %}
+    <small class="helptext">{{ field.help_text|safe }}</small>
+  {% endif %}
+</div>

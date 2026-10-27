@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load l10n %}
+
+{% block title %}Panel del docente · GrafoLab{% endblock %}
+
+{% block content %}
+
+{# ---------- Cabecera con filtro de semestre y accesos rápidos ---------- #}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Panel del docente</h1>
+    <p class="page-subtitle">
+      {% if semester %}Semestre {{ semester.name }}{% else %}Todos los semestres{% endif %}
+    </p>
+  </div>
+
+  <div class="header-actions">
+    <form method="get" class="filters">
+      <label for="semester-filter" class="visually-hidden">Semestre</label>
+      <select id="semester-filter" name="semester" data-autosubmit>
+        <option value="">Todos los semestres</option>
+        {% for item in semesters %}
+          <option value="{{ item.pk }}"{% if semester and semester.pk == item.pk %} selected{% endif %}>
+            {{ item.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+    <a href="{% url 'modules:manage_create' %}" class="btn btn-primary">Nuevo ejercicio</a>
+    <a href="{% url 'core:semester_create' %}" class="btn btn-secondary">Nuevo semestre</a>
+  </div>
+</div>
+
+{# ---------- Métricas generales ---------- #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Estudiantes</span>
+    <span class="stat-value">{{ summary.students }}</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Ejercicios</span>
+    <span class="stat-value">{{ summary.exercises }}</span>
+    <span class="stat-hint">{{ summary.published }} publicados</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Intentos</span>
+    <span class="stat-value">{{ summary.attempts }}</span>
+    <span class="stat-hint">{{ summary.correct }} correctos</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-label">Porcentaje de aciertos</span>
+    <span class="stat-value">{{ summary.accuracy }}%</span>
+    <div class="progress" style="margin-top: 0.5rem;">
+  <div class="progress-bar" data-width="{{ summary.accuracy|unlocalize }}"></div>
+</div>
+  </div>
+</div>
+
+{# ---------- Rendimiento por ejercicio ---------- #}
+<h2>Rendimiento por ejercicio</h2>
+<div class="table-wrap" style="margin-bottom: 1.5rem;">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Ejercicio</th>
+        <th>Semestre</th>
+        <th>Categoría</th>
+        <th>Estudiantes</th>
+        <th>Intentos</th>
+        <th>Aciertos</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in exercise_stats %}
+        <tr>
+          <td>
+            <a href="{% url 'modules:manage_detail' row.pk %}">{{ row.title }}</a>
+            {% if not row.is_published %}<span class="badge badge-neutral">Borrador</span>{% endif %}
+          </td>
+          <td>{{ row.semester.name }}</td>
+          <td><span class="badge badge-info">{{ row.get_category_display }}</span></td>
+          <td>{{ row.students_count }}</td>
+          <td>{{ row.attempts_count }}</td>
+          <td>
+            <div class="cell-progress">
+              <div class="progress">
+                <div class="progress-bar" data-width="{{ row.accuracy|unlocalize }}"></div>
+              </div>
+              <span>{{ row.accuracy }}%</span>
+            </div>
+          </td>
+          <td class="actions">
+            <a href="{% url 'modules:manage_attempts' row.pk %}" class="btn btn-secondary btn-sm">Ver intentos</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="empty-state">Aún no hay ejercicios en esta selección.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{# ---------- Rendimiento por estudiante ---------- #}
+<h2>Rendimiento por estudiante</h2>
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Estudiante</th>
+        <th>Correo</th>
+        <th>Resueltos</th>
+        <th>Intentos</th>
+        <th>Aciertos</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in student_stats %}
+        <tr>
+          <td>
+            <a href="{% url 'users:student_detail' row.pk %}">
+              {{ row.get_full_name|default:row.username }}
+            </a>
+            {% if not row.is_active %}<span class="badge badge-danger">Inactivo</span>{% endif %}
+          </td>
+          <td>{{ row.email|default:"—" }}</td>
+          <td>{{ row.solved_count }}</td>
+          <td>{{ row.attempts_count }}</td>
+          <td>
+            <div class="cell-progress">
+              <div class="progress">
+                <div class="progress-bar" data-width="{{ row.accuracy|unlocalize }}"></div>
+              </div>
+              <span>{{ row.accuracy }}%</span>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" class="empty-state">Aún no hay estudiantes en esta selección.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

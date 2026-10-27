@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load l10n %}
+
+{% block title %}{{ student.get_full_name|default:student.username }} · GrafoLab{% endblock %}
+
+{% block content %}
+
+{# data-student agrupa el estado y el botón para que main.js los actualice juntos #}
+<div data-student>
+
+  <div class="page-header">
+    <div>
+      <a href="{% url 'users:student_list' %}" class="text-muted">&larr; Volver a estudiantes</a>
+      <h1 class="page-title">{{ student.get_full_name|default:student.username }}</h1>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'users:student_update' student.pk %}" class="btn btn-secondary">Editar</a>
+      <button type="button" class="btn btn-secondary"
+              data-toggle-active
+              data-url="{% url 'users:student_toggle' student.pk %}"
+              data-active="{% if student.is_active %}true{% else %}false{% endif %}"
+              data-confirm="¿Desactivar esta cuenta? El estudiante no podrá iniciar sesión.">
+        {% if student.is_active %}Desactivar{% else %}Activar{% endif %}
+      </button>
+      <a href="{% url 'users:student_delete' student.pk %}" class="btn btn-danger">Eliminar</a>
+    </div>
+  </div>
+
+  {# ---------- Datos de la cuenta ---------- #}
+  <div class="card">
+    <div class="profile-header">
+      <span class="avatar-lg">{{ student.username|first|upper }}</span>
+      <div>
+        <h2 class="mb-0">{{ student.get_full_name|default:student.username }}</h2>
+        <span data-status-badge
+              class="badge {% if student.is_active %}badge-success{% else %}badge-danger{% endif %}">
+          {% if student.is_active %}Activo{% else %}Inactivo{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <dl class="detail-list">
+      <div>
+        <dt>Usuario</dt>
+        <dd>{{ student.username }}</dd>
+      </div>
+      <div>
+        <dt>Correo institucional</dt>
+        <dd>{{ student.email|default:"—" }}</dd>
+      </div>
+      <div>
+        <dt>Registro</dt>
+        <dd>{{ student.date_joined|date:"d/m/Y" }}</dd>
+      </div>
+      <div>
+        <dt>Último acceso</dt>
+        <dd>{{ student.last_login|date:"d/m/Y H:i"|default:"—" }}</dd>
+      </div>
+      <div class="detail-full">
+        <dt>Semestres</dt>
+        <dd>
+          {% for semester in semesters %}
+            <a href="{% url 'core:semester_detail' semester.pk %}"
+               class="badge {% if semester.is_active %}badge-success{% else %}badge-neutral{% endif %}">
+              {{ semester.name }}
+            </a>
+          {% empty %}
+            <span class="text-muted">No está inscrito en ningún semestre.</span>
+          {% endfor %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+</div>
+
+{# ---------- Desempeño ---------- #}
+<h2>Desempeño</h2>
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Ejercicios resueltos</span>
+    <span class="stat-value">{{ summary.solved }}</span>
+    <span class="stat-hint">de {{ summary.available }} disponibles</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Intentos</span>
+    <span class="stat-value">{{ summary.attempts }}</span>
+    <span class="stat-hint">{{ summary.correct }} correctos</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Porcentaje de aciertos</span>
+    <span class="stat-value">{{ summary.accuracy }}%</span>
+    <div class="progress" style="margin-top: 0.5rem;">
+      <div class="progress-bar" data-width="{{ summary.accuracy|unlocalize }}"></div>
+    </div>
+  </div>
+</div>
+
+<h2>Últimos intentos</h2>
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Ejercicio</th>
+        <th>Resultado</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in summary.recent %}
+        <tr>
+          <td>
+            <a href="{% url 'modules:manage_detail' attempt.exercise.pk %}">{{ attempt.exercise.title }}</a>
+          </td>
+          <td>
+            {% if attempt.is_correct %}
+              <span class="badge badge-success">Correcto</span>
+            {% else %}
+              <span class="badge badge-danger">Incorrecto</span>
+            {% endif %}
+          </td>
+          <td>{{ attempt.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="empty-state">Este estudiante aún no tiene intentos.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

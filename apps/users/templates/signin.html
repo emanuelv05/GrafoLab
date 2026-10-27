@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión · GrafoLab{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h1>GrafoLab</h1>
+  <p class="auth-subtitle">Inicia sesión para continuar</p>
+
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+
+    {# Si el usuario venía de otra página protegida, vuelve a ella tras el login #}
+    <input type="hidden" name="next" value="{{ next }}">
+
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+  </form>
+
+  <p class="auth-footer">
+    ¿Eres estudiante y aún no tienes cuenta?
+    <a href="{% url 'users:signup' %}">Regístrate</a>
+  </p>
+</div>
+{% endblock %}

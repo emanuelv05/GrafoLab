@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Editar ejercicio{% else %}Nuevo ejercicio{% endif %} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'modules:manage_list' %}" class="text-muted">&larr; Volver a ejercicios</a>
+    <h1 class="page-title">{% if object %}Editar ejercicio{% else %}Nuevo ejercicio{% endif %}</h1>
+  </div>
+</div>
+
+<div class="card">
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="form-grid">
+      {% include 'partials/form_field.html' with field=form.title full=True %}
+      {% include 'partials/form_field.html' with field=form.semester %}
+      {% include 'partials/form_field.html' with field=form.category %}
+      {% include 'partials/form_field.html' with field=form.kind full=True %}
+      {% include 'partials/form_field.html' with field=form.statement full=True %}
+            {# ---------- Editor gráfico del grafo (solo para tipos de grafos) ---------- #}
+      <div class="form-field form-field-full graph-editor" id="graph-editor" hidden>
+        <label>Dibujo del grafo</label>
+
+        <div class="editor-toolbar" role="toolbar" aria-label="Herramientas del grafo">
+          <button type="button" class="tool is-active" data-tool="move" aria-pressed="true">Mover</button>
+          <button type="button" class="tool" data-tool="vertex" aria-pressed="false">Vértice</button>
+          <button type="button" class="tool" data-tool="edge" aria-pressed="false">Arista</button>
+          <button type="button" class="tool" data-tool="weight" data-needs="weighted" aria-pressed="false" hidden>Peso</button>
+          <button type="button" class="tool" data-tool="source" data-needs="dijkstra" aria-pressed="false" hidden>Origen</button>
+          <button type="button" class="tool" data-tool="target" data-needs="dijkstra" aria-pressed="false" hidden>Destino</button>
+          <button type="button" class="tool tool-danger" data-tool="delete" aria-pressed="false">Borrar</button>
+        </div>
+
+        <div class="editor-options">
+          <label data-needs="weighted" hidden>
+            Peso
+            <input type="number" id="editor-weight" value="1" min="0.01" step="any">
+          </label>
+          <label data-needs="coloring" hidden>
+            Máximo de colores (opcional)
+            <input type="number" id="editor-max-colors" min="1" max="12" step="1">
+          </label>
+          <button type="button" class="btn btn-secondary btn-sm" id="editor-clear">Limpiar todo</button>
+        </div>
+
+        <p class="editor-hint" id="editor-hint"></p>
+        <div class="graph-box" id="editor-canvas"></div>
+        <p class="editor-status" id="editor-status"></p>
+      </div>
+
+            {# ---------- Editor de árboles (solo para tipos de árboles) ---------- #}
+      <div class="form-field form-field-full tree-editor" id="tree-editor" hidden>
+        <label>Árbol del ejercicio</label>
+
+        {# bst_build: valores en orden de inserción #}
+        <div class="editor-options" data-needs="values" hidden>
+          <label class="grow">
+            Valores (en el orden en que se insertan)
+            <input type="text" id="tree-values" placeholder="8, 3, 10, 1, 6, 14" autocomplete="off">
+          </label>
+        </div>
+
+        {# expression_tree: expresión aritmética #}
+        <div class="editor-options" data-needs="expression" hidden>
+          <label class="grow">
+            Expresión aritmética
+            <input type="text" id="tree-expression" placeholder="(2+3)*4" autocomplete="off">
+          </label>
+        </div>
+
+        {# Herramientas para dibujar el árbol #}
+        <div class="editor-toolbar" role="toolbar" aria-label="Herramientas del árbol" data-needs="tools" hidden>
+          <button type="button" class="tool is-active" data-tool="add" aria-pressed="true">Agregar</button>
+          <button type="button" class="tool" data-tool="edit" aria-pressed="false">Cambiar valor</button>
+          <button type="button" class="tool" data-tool="target" data-needs="target" aria-pressed="false" hidden>Objetivo</button>
+          <button type="button" class="tool tool-danger" data-tool="delete" aria-pressed="false">Borrar</button>
+        </div>
+
+        <div class="editor-options" data-needs="tools" hidden>
+          <label>
+            Valor
+            <input type="text" id="tree-value" class="short" value="1" maxlength="6" autocomplete="off">
+          </label>
+          <label data-needs="order" hidden>
+            Recorrido
+            <select id="tree-order">
+              <option value="inorder">Inorden</option>
+              <option value="preorder">Preorden</option>
+              <option value="postorder">Postorden</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-secondary btn-sm" id="tree-clear">Limpiar todo</button>
+        </div>
+
+        <p class="editor-hint" id="tree-hint" data-needs="tools" hidden></p>
+        <div class="graph-box" id="tree-canvas" data-needs="canvas" hidden></div>
+        <p class="editor-status" id="tree-status"></p>
+      </div>
+
+      {% include 'partials/form_field.html' with field=form.data full=True %}
+    </div>
+
+    {# ---------- Ayuda de formato: solo se muestra el del tipo elegido ---------- #}
+    <div class="data-help" id="data-help" hidden>
+      <div class="data-help-header">
+        <strong>Formato de este tipo de ejercicio</strong>
+        <button type="button" class="btn btn-secondary btn-sm" id="use-example">Usar este ejemplo</button>
+      </div>
+
+      {# verbatim: evita que Django interprete las llaves del JSON como etiquetas #}
+      {% verbatim %}
+      <div class="example" data-kind="adjacency_matrix" hidden><pre class="code-block">{"vertices": ["A", "B", "C", "D"], "edges": [["A", "B"], ["B", "C"], ["C", "D"]]}</pre><small>4 a 6 vértices con letras mayúsculas, sin pesos, lazos ni aristas repetidas.</small></div>
+      <div class="example" data-kind="dijkstra" hidden><pre class="code-block">{"vertices": ["A", "B", "C", "D"], "edges": [["A", "B", 1], ["B", "C", 2], ["A", "C", 5], ["C", "D", 1]], "source": "A", "target": "D"}</pre><small>Cada arista es [u, v, peso]. Debe existir un camino de origen a destino.</small></div>
+      <div class="example" data-kind="mst" hidden><pre class="code-block">{"vertices": ["A", "B", "C", "D"], "edges": [["A", "B", 1], ["B", "C", 2], ["A", "C", 5], ["C", "D", 1]]}</pre><small>Grafo ponderado y conexo.</small></div>
+      <div class="example" data-kind="connectivity" hidden><pre class="code-block">{"vertices": ["A", "B", "C", "D"], "edges": [["A", "B"], ["B", "C"]]}</pre><small>Grafo sin pesos; el estudiante indica si es conexo y si tiene ciclos.</small></div>
+      <div class="example" data-kind="coloring" hidden><pre class="code-block">{"vertices": ["A", "B", "C", "D"], "edges": [["A", "B"], ["B", "C"], ["C", "D"], ["A", "C"]], "max_colors": 3}</pre><small>"max_colors" es opcional; si lo omites se exige el mínimo posible.</small></div>
+      <div class="example" data-kind="bst_build" hidden><pre class="code-block">{"values": [8, 3, 10, 1, 6, 14]}</pre><small>Enteros distintos, en el orden en que se insertan.</small></div>
+      <div class="example" data-kind="traversal" hidden><pre class="code-block">{"tree": {"value": 8, "left": {"value": 3}, "right": {"value": 10}}, "order": "inorder"}</pre><small>"order" puede ser inorder, preorder o postorder.</small></div>
+      <div class="example" data-kind="balance" hidden><pre class="code-block">{"tree": {"value": 8, "left": {"value": 3, "left": {"value": 1}}, "right": null}}</pre><small>Cada nodo tiene "value", "left" y "right" (null si no hay hijo).</small></div>
+      <div class="example" data-kind="tree_metrics" hidden><pre class="code-block">{"tree": {"value": 8, "left": {"value": 3}, "right": {"value": 10}}, "target": 3}</pre><small>"target" es opcional: nodo cuya profundidad se pide.</small></div>
+      <div class="example" data-kind="expression_tree" hidden><pre class="code-block">{"expression": "(2+3)*4"}</pre><small>Números, + - * / y paréntesis.</small></div>
+      {% endverbatim %}
+    </div>
+
+    {# Casilla de publicación #}
+    <div class="form-field">
+      <label class="checkbox">
+        {{ form.is_published }}
+        Publicar ejercicio
+      </label>
+      <small class="helptext">Solo los ejercicios publicados los ven los estudiantes inscritos.</small>
+      {{ form.is_published.errors }}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {% if object %}Guardar cambios{% else %}Crear ejercicio{% endif %}
+      </button>
+      <a href="{% url 'modules:manage_list' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/graph-view.js' %}"></script>
+  <script src="{% static 'js/graph-editor.js' %}"></script>
+  <script src="{% static 'js/tree-view.js' %}"></script>
+  <script src="{% static 'js/tree-editor.js' %}"></script>
+  <script src="{% static 'js/exercise_form.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Semestre {{ semester.name }} · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{% url 'core:semester_list' %}" class="text-muted">&larr; Volver a semestres</a>
+    <h1 class="page-title">
+      Semestre {{ semester.name }}
+      {% if semester.is_active %}
+        <span class="badge badge-success">Activo</span>
+      {% else %}
+        <span class="badge badge-neutral">Cerrado</span>
+      {% endif %}
+    </h1>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'core:semester_update' semester.pk %}" class="btn btn-secondary">Editar</a>
+    <a href="{% url 'core:semester_delete' semester.pk %}" class="btn btn-danger">Eliminar</a>
+  </div>
+</div>
+
+<div class="two-columns">
+
+  {# ---------- Columna principal: estudiantes inscritos y ejercicios ---------- #}
+  <div>
+    <h2>Estudiantes inscritos ({{ enrolled|length }})</h2>
+    <div class="table-wrap" style="margin-bottom: 1.5rem;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Correo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in enrolled %}
+            <tr>
+              <td>
+                <a href="{% url 'users:student_detail' student.pk %}">
+                  {{ student.get_full_name|default:student.username }}
+                </a>
+                {% if not student.is_active %}<span class="badge badge-danger">Inactivo</span>{% endif %}
+              </td>
+              <td>{{ student.email|default:"—" }}</td>
+              <td class="actions">
+                {# Retirar no borra los intentos; solo quita el acceso a los ejercicios #}
+                <form method="post"
+                  action="{% url 'core:semester_remove_student' semester.pk student.pk %}"
+                  data-confirm="Dejará de ver los ejercicios de este semestre. Sus intentos se conservan."
+                  data-confirm-title="Retirar a {{ student.get_full_name|default:student.username }}"
+                  data-confirm-ok="Retirar"
+                  data-confirm-style="danger">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-secondary btn-sm">Retirar</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="empty-state">Aún no hay estudiantes inscritos.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Ejercicios ({{ exercises|length }})</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Categoría</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exercise in exercises %}
+            <tr>
+              <td><a href="{% url 'modules:manage_detail' exercise.pk %}">{{ exercise.title }}</a></td>
+              <td><span class="badge badge-info">{{ exercise.get_category_display }}</span></td>
+              <td>
+                {% if exercise.is_published %}
+                  <span class="badge badge-success">Publicado</span>
+                {% else %}
+                  <span class="badge badge-neutral">Borrador</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="empty-state">
+                Este semestre aún no tiene ejercicios.
+                <a href="{% url 'modules:manage_create' %}">Crear uno</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ---------- Columna lateral: inscribir estudiantes ---------- #}
+  <aside>
+    <div class="card">
+      <h2 class="card-title">Inscribir estudiantes</h2>
+
+      {% if enroll_form.students.field.queryset %}
+        <form method="post" action="{% url 'core:semester_enroll' semester.pk %}">
+          {% csrf_token %}
+
+          <label class="checklist-item checklist-all">
+            <input type="checkbox" data-check-all="enroll-list">
+            Seleccionar todos
+          </label>
+
+          <div class="checklist" id="enroll-list">
+            {% for checkbox in enroll_form.students %}
+              <label class="checklist-item">
+                {{ checkbox.tag }}
+                {{ checkbox.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Inscribir seleccionados</button>
+        </form>
+      {% else %}
+        <p class="text-muted mb-0">
+          No hay más estudiantes para inscribir. Se muestran los activos que aún no están en este semestre.
+        </p>
+      {% endif %}
+    </div>
+  </aside>
+
+</div>
+{% endblock %}

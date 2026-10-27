@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {# Token CSRF disponible para JavaScript (lo usa main.js en las peticiones fetch) #}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}GrafoLab{% endblock %}</title>
+
+  {# Favicon vacío para evitar el 404 en la consola mientras no haya uno propio #}
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{% static 'themes/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+
+{# layout-app: usuario autenticado (con sidebar) · layout-auth: login y registro #}
+<body class="{% if user.is_authenticated %}layout-app{% else %}layout-auth{% endif %}">
+  <div class="app">
+
+    {% if user.is_authenticated %}
+      {% include 'partials/sidebar.html' %}
+      {# Capa oscura que aparece detrás del menú en móvil #}
+      <div class="sidebar-overlay" data-sidebar-overlay></div>
+    {% endif %}
+
+    <div class="main">
+      {% if user.is_authenticated %}
+        {# Barra superior: solo visible en pantallas pequeñas #}
+        <header class="topbar">
+          <button type="button" class="menu-toggle" data-sidebar-toggle
+                  aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <span class="topbar-brand">GrafoLab</span>
+        </header>
+      {% endif %}
+
+      <main class="content">
+        {% include 'partials/messages.html' %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+
+  </div>
+
+  {# Modal de confirmación reutilizable; lo controla main.js #}
+  <dialog class="modal" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog" class="modal-box">
+      <h2 class="modal-title" id="confirm-title">Confirmar acción</h2>
+      <p class="modal-message" id="confirm-message"></p>
+      <div class="modal-actions">
+        <button type="submit" value="cancel" class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+        <button type="submit" value="ok" class="btn btn-primary" id="confirm-ok">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

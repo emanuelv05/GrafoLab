@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar ejercicio · GrafoLab{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Eliminar ejercicio</h1>
+</div>
+
+<div class="card card-narrow">
+  <p>
+    ¿Seguro que quieres eliminar el ejercicio <strong>{{ exercise.title }}</strong>
+    del semestre {{ exercise.semester.name }}?
+  </p>
+
+  {# Los intentos dependen del ejercicio y se borran en cascada #}
+  <div class="message message-warning">
+    <span class="message-text">
+      Se borrarán también sus {{ exercise.attempts.count }} intento(s) y no se puede deshacer.
+      Si solo quieres ocultarlo a los estudiantes, edítalo y desmarca <strong>Publicar ejercicio</strong>.
+    </span>
+  </div>
+
+  <form method="post" class="form-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a href="{% url 'modules:manage_detail' exercise.pk %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

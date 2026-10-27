@@ -1,0 +1,74 @@
+{# Menú lateral. El enlace activo se marca según la URL actual. #}
+{% with ns=request.resolver_match.namespace|default:'' name=request.resolver_match.url_name|default:'' %}
+<aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+
+  <a class="sidebar-brand" href="{% url 'core:dashboard' %}">
+    <span class="brand-mark">G</span>
+    <span>GrafoLab</span>
+  </a>
+
+  <nav class="sidebar-nav">
+    <a href="{% url 'core:dashboard' %}"
+       class="nav-link{% if ns == 'core' and name == 'dashboard' %} active{% endif %}">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Inicio
+    </a>
+
+    {% if user.is_teacher %}
+      {# ----- Opciones del docente ----- #}
+      <a href="{% url 'core:semester_list' %}"
+         class="nav-link{% if ns == 'core' and 'semester' in name %} active{% endif %}">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+        Semestres
+      </a>
+      <a href="{% url 'modules:manage_list' %}"
+         class="nav-link{% if ns == 'modules' and 'manage' in name %} active{% endif %}">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.2 7l7.6.7M7.4 8.2l3.4 7.6M16.7 10.2l-3.6 5.9"/></svg>
+        Ejercicios
+      </a>
+      <a href="{% url 'users:student_list' %}"
+         class="nav-link{% if ns == 'users' and 'student' in name %} active{% endif %}">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></svg>
+        Estudiantes
+      </a>
+    {% else %}
+      {# ----- Opciones del estudiante ----- #}
+      <a href="{% url 'modules:exercise_list' %}"
+         class="nav-link{% if ns == 'modules' and 'exercise' in name %} active{% endif %}">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.2 7l7.6.7M7.4 8.2l3.4 7.6M16.7 10.2l-3.6 5.9"/></svg>
+        Ejercicios
+      </a>
+      <a href="{% url 'modules:attempt_list' %}"
+         class="nav-link{% if ns == 'modules' and 'attempt' in name %} active{% endif %}">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Mi historial
+      </a>
+    {% endif %}
+
+    <a href="{% url 'users:profile' %}"
+       class="nav-link{% if ns == 'users' and 'profile' in name %} active{% endif %}">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Mi perfil
+    </a>
+  </nav>
+
+  {# Datos del usuario y cierre de sesión (SignoutView solo acepta POST) #}
+  <div class="sidebar-footer">
+    <div class="user-box">
+      <span class="avatar">{{ user.username|first|upper }}</span>
+      <div class="user-info">
+        <strong>{{ user.get_full_name|default:user.username }}</strong>
+        <small>{% if user.is_teacher %}Docente{% else %}Estudiante{% endif %}</small>
+      </div>
+    </div>
+    <form method="post" action="{% url 'users:signout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost btn-block">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 8l4 4-4 4M20 12H9"/></svg>
+        Cerrar sesión
+      </button>
+    </form>
+  </div>
+
+</aside>
+{% endwith %}
