@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Mi historial · GrafoLab{% endblock %}
 
@@ -37,7 +38,7 @@
             {% endif %}
           </td>
           <td>{{ attempt.created_at|date:"d/m/Y H:i" }}</td>
-          <td class="wrap">
+          <td class="wrap attempt-detail">
             <details>
               <summary>Ver respuesta</summary>
 
@@ -50,7 +51,35 @@
                 </ul>
               {% endif %}
 
-              <pre class="code-block">{{ attempt.answer_pretty }}</pre>
+              <div class="attempt-answer" data-attempt-id="{{ attempt.pk }}" data-kind="{{ attempt.exercise.kind }}">
+                {% if attempt.answer.tree %}
+                  <span class="attempt-answer-label">Árbol enviado</span>
+                  <div class="attempt-tree-canvas" data-tree-answer="{{ attempt.pk }}" data-tree-answer-json="{{ attempt.answer_tree_json }}"></div>
+                {% else %}
+                  {% for key, value in attempt.answer.items %}
+                    {% if key != 'matrix' %}
+                      <div class="attempt-field">
+                        <span class="attempt-answer-label">{{ key }}</span>
+                        <span class="attempt-field-value">{{ value|default:'—' }}</span>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                  {% if attempt.answer.matrix %}
+                    <span class="attempt-answer-label">Matriz</span>
+                    <div class="attempt-matrix-wrap">
+                      <table class="attempt-matrix"><tbody>
+                        {% for row in attempt.answer.matrix %}
+                          <tr>{% for cell in row %}<td>{{ cell|default:'—' }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                      </tbody></table>
+                    </div>
+                  {% endif %}
+                {% endif %}
+              </div>
+              <details class="attempt-raw">
+                <summary>Ver datos técnicos</summary>
+                <pre class="code-block">{{ attempt.answer_pretty }}</pre>
+              </details>
             </details>
           </td>
         </tr>
@@ -64,5 +93,8 @@
 </div>
 
 {% include 'partials/pagination.html' %}
+
+<script src="{% static 'js/tree-view.js' %}"></script>
+<script src="{% static 'js/attempt-history.js' %}"></script>
 
 {% endblock %}

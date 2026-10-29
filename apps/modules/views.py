@@ -192,3 +192,9 @@ class StudentAttemptListView(StudentRequiredMixin, ListView):
 
     def get_queryset(self):
         return Attempt.objects.filter(student=self.request.user).select_related("exercise")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for attempt in context["attempts"]:
+            attempt.answer_tree_json = json.dumps(attempt.answer.get("tree"), ensure_ascii=False)
+        return context
